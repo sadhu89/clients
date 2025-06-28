@@ -1,6 +1,6 @@
 require 'thor'
 
-class HelloWorld < Thor
+class ClientsSearch < Thor
   desc "greet", "Print hello world message"
   def greet
     puts "Hello World!"

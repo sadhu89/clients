@@ -1,4 +1,4 @@
-# Hello World Ruby Application
+# Clients Search Ruby Application
 
 A simple Ruby console application built with Bundler and Thor CLI framework.
 
@@ -11,17 +11,17 @@ bundle install
 
 2. Run the application:
 ```bash
-bin/hello_world
+bin/clients_search
 ```
 
 ## Usage
 
 ```bash
 # Show help
-bin/hello_world --help
+bin/clients_search --help
 
 # Run the default command
-bin/hello_world greet
+bin/clients_search greet
 ```
 
 ## Testing
@@ -39,13 +39,13 @@ bin/test --format documentation
 ```
 .
 ├── Gemfile              # Dependencies
-├── lib/hello_world.rb   # Main application
+├── lib/clients_search.rb   # Main application
 ├── bin/                 # Executables
-│   ├── hello_world      # Application executable
+│   ├── clients_search      # Application executable
 │   └── test             # Test runner executable
 ├── spec/                # Test files
 │   ├── spec_helper.rb   # RSpec configuration
-│   └── hello_world_spec.rb # Tests
+│   └── clients_search_spec.rb # Tests
 └── README.md           # This file
 ```
 

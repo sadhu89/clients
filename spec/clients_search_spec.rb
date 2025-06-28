@@ -1,7 +1,7 @@
 require 'spec_helper'
-require_relative '../lib/hello_world'
+require_relative '../lib/clients_search'
 
-RSpec.describe HelloWorld do
+RSpec.describe ClientsSearch do
   describe '#greet' do
     it 'prints hello world message' do
       expect { subject.greet }.to output("Hello World!\n").to_stdout
@@ -14,11 +14,11 @@ RSpec.describe HelloWorld do
 
   describe 'command line interface' do
     it 'responds to greet command' do
-      expect(HelloWorld.new).to respond_to(:greet)
+      expect(ClientsSearch.new).to respond_to(:greet)
     end
 
     it 'has greet as a documented command' do
-      commands = HelloWorld.tasks.keys
+      commands = ClientsSearch.tasks.keys
       expect(commands).to include('greet')
     end
   end
