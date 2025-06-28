@@ -1,26 +1,39 @@
 # Hello World Ruby Application
 
-A simple Ruby console application that prints "Hello World!" to the console.
+A simple Ruby console application built with Bundler and Thor CLI framework.
 
-## Requirements
+## Quick Start
 
-- Ruby (any recent version)
-
-## How to Execute
-
-### Method 1: Direct execution with Ruby
+1. Install dependencies:
 ```bash
-ruby hello_world.rb
+bundle install
 ```
 
-### Method 2: Make executable and run directly
+2. Run the application:
 ```bash
-chmod +x hello_world.rb
-./hello_world.rb
+bin/hello_world
 ```
 
-## Expected Output
+## Usage
+
+```bash
+# Show help
+bin/hello_world --help
+
+# Run the default command
+bin/hello_world greet
+```
+
+## Project Structure
 
 ```
-Hello World!
-``` 
+.
+├── Gemfile              # Dependencies
+├── lib/hello_world.rb   # Main application
+├── bin/hello_world      # Executable
+└── README.md           # This file
+```
+
+## Dependencies
+
+- **thor**: CLI framework for Ruby applications
