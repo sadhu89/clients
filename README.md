@@ -1,6 +1,6 @@
 # Clients Search Ruby Application
 
-A simple Ruby console application built with Bundler and Thor CLI framework.
+A Ruby console application for searching and managing client information, built with Bundler and Thor CLI framework.
 
 ## Quick Start
 
@@ -46,6 +46,8 @@ bin/test --format documentation
 ├── spec/                # Test files
 │   ├── spec_helper.rb   # RSpec configuration
 │   └── clients_search_spec.rb # Tests
+├── data/                # Data files
+│   └── clients.json     # Client data in JSON format
 └── README.md           # This file
 ```
 
