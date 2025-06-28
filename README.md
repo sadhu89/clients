@@ -24,16 +24,32 @@ bin/hello_world --help
 bin/hello_world greet
 ```
 
+## Testing
+
+```bash
+# Run all tests (using executable)
+bin/test
+
+# Run tests with documentation format
+bin/test --format documentation
+```
+
 ## Project Structure
 
 ```
 .
 ├── Gemfile              # Dependencies
 ├── lib/hello_world.rb   # Main application
-├── bin/hello_world      # Executable
+├── bin/                 # Executables
+│   ├── hello_world      # Application executable
+│   └── test             # Test runner executable
+├── spec/                # Test files
+│   ├── spec_helper.rb   # RSpec configuration
+│   └── hello_world_spec.rb # Tests
 └── README.md           # This file
 ```
 
 ## Dependencies
 
 - **thor**: CLI framework for Ruby applications
+- **rspec**: Testing framework (development dependency)

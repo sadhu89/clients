@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+# Set the spec directory and run RSpec
+spec_dir = File.join(__dir__, '../spec')
+Dir.chdir(File.dirname(__dir__)) do
+  system('bundle', 'exec', 'rspec', *ARGV)
+end 
