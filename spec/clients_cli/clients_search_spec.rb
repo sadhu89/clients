@@ -1,4 +1,4 @@
-require_relative '../../lib/clients_cli/clients_search'
+require_relative '../../lib/clients_cli/search'
 require 'json'
 
 RSpec.describe ClientsSearch do
