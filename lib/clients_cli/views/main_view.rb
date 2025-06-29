@@ -1,29 +1,44 @@
-class WelcomeView
+class MainView
   def self.show_welcome(file_path, client_count)
-    puts <<~SCREEN
+    <<~SCREEN
       🔍 Clients Search REPL
       📁 Data file: #{file_path}
       👥 Total clients: #{client_count}
 
+      #{show_commands_help}
+
     SCREEN
-    show_commands_help
-    puts
   end
 
   def self.show_help(file_path, client_count)
-    puts <<~SCREEN
+    <<~SCREEN
       🔍 Clients Search REPL
       📁 Data file: #{file_path}
       👥 Total clients: #{client_count}
 
+      #{show_commands_help}
     SCREEN
-    show_commands_help
+  end
+
+  def self.show_unknown_command(input)
+    <<~SCREEN
+      ❌ Unknown command: '#{input}'
+      💡 Type 'h' or 'help' for available commands
+    SCREEN
+  end
+
+  def self.show_goodbye
+    "👋 Goodbye!\n"
+  end
+
+  def self.show_returning_to_menu
+    "👋 Returning to main menu\n"
   end
 
   private
 
   def self.show_commands_help
-    puts <<~SCREEN
+    <<~SCREEN
       Commands:
         • 's' or 'search' - Start a search
         • 'd' or 'duplicates' - Find duplicate emails

@@ -1,6 +1,6 @@
 require 'thor'
-require_relative 'clients'
-require_relative 'repl_shell'
+require_relative '../clients/clients'
+require_relative 'interactive_shell'
 
 class App < Thor
   default_task :repl
@@ -12,7 +12,7 @@ class App < Thor
   
   def repl
     file_path = options[:file] || DEFAULT_FILE_PATH
-    ReplShell.start(file_path)
+    InteractiveShell.start(file_path)
   end
 end
 

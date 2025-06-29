@@ -1,11 +1,10 @@
 require 'json'
-require_relative '../clients/models/client'
+require_relative '../models/client'
 
 class ClientsSearchError < StandardError; end
 
-class DataLoader
-  def self.load_clients(file_path)
-    
+class LoadData
+  def self.call(file_path)
     unless File.exist?(file_path)
       puts "Error: File not found at #{file_path}"
       raise ClientsSearchError, "File not found at #{file_path}"

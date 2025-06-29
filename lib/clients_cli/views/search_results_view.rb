@@ -1,12 +1,13 @@
 class SearchResultsView
   def self.show_search_results(matching_clients, query)
+    result = "🔍 Searching for: '#{query}'\n"
+    
     if matching_clients.empty?
-      puts "❌ No clients found matching '#{query}'"
+      result += "❌ No clients found matching '#{query}'\n"
     else
-      puts "✅ Found #{matching_clients.length} client(s) matching '#{query}':"
-      puts
+      result += "✅ Found #{matching_clients.length} client(s) matching '#{query}':\n\n"
       matching_clients.each_with_index do |client, index|
-        puts <<~SCREEN
+        result += <<~SCREEN
           #{index + 1}. #{client.full_name}
              📧 #{client.email}
              🆔 ID: #{client.id}
@@ -18,5 +19,7 @@ class SearchResultsView
         SCREEN
       end
     end
+    
+    result
   end
 end 
