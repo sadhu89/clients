@@ -1,5 +1,4 @@
-require 'spec_helper'
-require_relative '../../lib/models/client'
+require_relative '../../../../lib/clients/models/client'
 
 RSpec.describe Client do
   describe 'attributes' do

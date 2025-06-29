@@ -1,6 +1,5 @@
-require 'spec_helper'
-require_relative '../../lib/models/client'
-require_relative '../../lib/services/find_clients'
+require_relative '../../../../lib/clients/models/client'
+require_relative '../../../../lib/clients/services/find_clients'
 
 RSpec.describe FindClients do
   let(:sample_clients) do

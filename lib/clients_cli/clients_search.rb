@@ -1,11 +1,13 @@
 require 'thor'
 require 'json'
-require_relative 'lib/models/client'
-require_relative 'lib/services/find_clients'
-require_relative 'lib/services/find_duplicate_clients'
+require_relative '../clients/models/client'
+require_relative '../clients/services/find_clients'
+require_relative '../clients/services/find_duplicate_clients'
+
+class ClientsSearchError < StandardError; end
 
 class ClientsSearch < Thor
-  DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), 'data', 'clients.json')
+  DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), '..', '..', 'data', 'clients.json')
   
   default_task :repl
 
@@ -16,7 +18,7 @@ class ClientsSearch < Thor
     file_path = options[:file] || DEFAULT_FILE_PATH
     unless File.exist?(file_path)
       puts "Error: File not found at #{file_path}"
-      exit 1
+      raise ClientsSearchError, "File not found at #{file_path}"
     end
     
     begin
@@ -24,10 +26,10 @@ class ClientsSearch < Thor
       clients = Client.from_json_array(raw_clients)
     rescue JSON::ParserError => e
       puts "Error: Invalid JSON in file #{file_path}: #{e.message}"
-      exit 1
+      raise ClientsSearchError, "Invalid JSON in file #{file_path}: #{e.message}"
     rescue Dry::Struct::Error => e
       puts "Error: Invalid client data in file #{file_path}: #{e.message}"
-      exit 1
+      raise ClientsSearchError, "Invalid client data in file #{file_path}: #{e.message}"
     end
 
     current_file_path = file_path
@@ -108,7 +110,7 @@ class ClientsSearch < Thor
     file_path = options[:file] || DEFAULT_FILE_PATH
     unless File.exist?(file_path)
       puts "Error: File not found at #{file_path}"
-      exit 1
+      raise ClientsSearchError, "File not found at #{file_path}"
     end
     
     begin
@@ -116,10 +118,10 @@ class ClientsSearch < Thor
       clients = Client.from_json_array(raw_clients)
     rescue JSON::ParserError => e
       puts "Error: Invalid JSON in file #{file_path}: #{e.message}"
-      exit 1
+      raise ClientsSearchError, "Invalid JSON in file #{file_path}: #{e.message}"
     rescue Dry::Struct::Error => e
       puts "Error: Invalid client data in file #{file_path}: #{e.message}"
-      exit 1
+      raise ClientsSearchError, "Invalid client data in file #{file_path}: #{e.message}"
     end
 
     matching_clients = FindClients.call(clients, query)

@@ -1,4 +1,9 @@
 #!/usr/bin/env ruby
 
-require_relative '../clients_search'
-ClientsSearch.start 
+require_relative '../lib/clients_cli/clients_search'
+
+begin
+  ClientsSearch.start 
+rescue ClientsSearchError => e
+  exit 1
+end 

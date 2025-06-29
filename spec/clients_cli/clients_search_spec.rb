@@ -1,5 +1,4 @@
-require 'spec_helper'
-require_relative '../clients_search'
+require_relative '../../lib/clients_cli/clients_search'
 require 'json'
 
 RSpec.describe ClientsSearch do
@@ -67,16 +66,14 @@ RSpec.describe ClientsSearch do
     context 'when the specified file does not exist' do
       it 'shows error message and exits' do
         search = clients_search_with_file('/nonexistent/file.json')
-        expect { search.search("test") }.to output(/Error: File not found at \/nonexistent\/file\.json/).to_stdout
-        expect { search.search("test") }.to raise_error(SystemExit)
+        expect { search.search("test") }.to output(/Error: File not found at \/nonexistent\/file\.json/).to_stdout.and raise_error(ClientsSearchError)
       end
     end
     
     context 'when the file has invalid JSON' do
       it 'shows error message and exits' do
         search = clients_search_with_file('spec/fixtures/invalid_json.json')
-        expect { search.search("test") }.to output(/Error: Invalid JSON in file spec\/fixtures\/invalid_json\.json:/).to_stdout
-        expect { search.search("test") }.to raise_error(SystemExit)
+        expect { search.search("test") }.to output(/Error: Invalid JSON in file spec\/fixtures\/invalid_json\.json:/).to_stdout.and raise_error(ClientsSearchError)
       end
     end
     
@@ -86,7 +83,7 @@ RSpec.describe ClientsSearch do
         expect { search.search("john") }.to output(/Found 2 client\(s\) matching 'john':/).to_stdout
         expect { search.search("john") }.to output(/John Doe/).to_stdout
         expect { search.search("john") }.to output(/   John   /).to_stdout
-        expect { search.search("") }.to output(/Found 3 client\(s\) matching '':/).to_stdout
+        expect { search.search("") }.to output(/Found 4 client\(s\) matching '':/).to_stdout
       end
     end
     

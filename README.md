@@ -39,13 +39,22 @@ bin/test --format documentation
 ```
 .
 ├── Gemfile              # Dependencies
-├── clients_search.rb    # Main application
+├── lib/                 # Library files
+│   ├── clients_cli/     # CLI related files
+│   │   └── clients_search.rb   # Main application
+│   └── clients/         # Client-related code
+│       ├── models/      # Data models
+│       └── services/    # Business logic services
 ├── bin/                 # Executables
 │   ├── clients_search      # Application executable
 │   └── test             # Test runner executable
 ├── spec/                # Test files
+│   ├── lib/             # Library tests (mirrors lib/ structure)
+│   │   └── clients/     # Client-related tests
+│   │       ├── models/  # Model tests
+│   │       └── services/ # Service tests
 │   ├── spec_helper.rb   # RSpec configuration
-│   └── clients_search_spec.rb # Tests
+│   └── clients_search_spec.rb # Integration tests
 ├── data/                # Data files
 │   └── clients.json     # Client data in JSON format
 └── README.md           # This file

@@ -9,8 +9,8 @@ class Client < Dry::Struct
   def self.from_hash(hash)
     new(
       id: hash['id'],
-      full_name: hash['full_name'],
-      email: hash['email']
+      full_name: hash['full_name'] || '',
+      email: hash['email'] || ''
     )
   end
 
