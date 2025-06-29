@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative '../lib/clients_search'
+require_relative '../clients_search'
 require 'json'
 
 RSpec.describe ClientsSearch do

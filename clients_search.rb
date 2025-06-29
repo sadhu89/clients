@@ -2,7 +2,7 @@ require 'thor'
 require 'json'
 
 class ClientsSearch < Thor
-  DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), '..', 'data', 'clients.json')
+  DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), 'data', 'clients.json')
   
   desc "search QUERY", "Search through all clients in the JSON file (via --file or default) and return those with names partially matching a given search query"
   option :file, type: :string, aliases: '-f', desc: "Path to the clients JSON file"

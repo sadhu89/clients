@@ -39,7 +39,7 @@ bin/test --format documentation
 ```
 .
 ├── Gemfile              # Dependencies
-├── lib/clients_search.rb   # Main application
+├── clients_search.rb    # Main application
 ├── bin/                 # Executables
 │   ├── clients_search      # Application executable
 │   └── test             # Test runner executable

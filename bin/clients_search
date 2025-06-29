@@ -1,6 +1,4 @@
 #!/usr/bin/env ruby
 
-require 'bundler/setup'
-require_relative '../lib/clients_search'
-
+require_relative '../clients_search'
 ClientsSearch.start 
