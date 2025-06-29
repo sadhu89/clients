@@ -27,7 +27,7 @@ RSpec.describe 'bin/clients executable' do
 
     it 'handles ClientsSearchError' do
       content = File.read(executable_path)
-      expect(content).to include('rescue ClientsSearchError => e')
+      expect(content).to include('rescue ClientsSearchError => _e')
       expect(content).to include('exit 1')
     end
   end
