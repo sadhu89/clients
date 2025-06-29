@@ -22,7 +22,7 @@ RSpec.describe FindDuplicateClients do
     context 'when there are duplicate emails' do
       it 'finds clients with duplicate email addresses' do
         result = FindDuplicateClients.call(sample_clients)
-        
+
         expect(result).to have_key('john@example.com')
         expect(result).to have_key('jane@example.com')
         expect(result['john@example.com'].length).to eq(2)
@@ -35,16 +35,16 @@ RSpec.describe FindDuplicateClients do
           Client.new(id: 2, full_name: 'Jane Smith', email: 'JOHN@EXAMPLE.COM'),
           Client.new(id: 3, full_name: 'Bob Johnson', email: 'John@Example.com')
         ]
-        
+
         result = FindDuplicateClients.call(clients_with_case_variations)
-        
+
         expect(result).to have_key('john@example.com')
         expect(result['john@example.com'].length).to eq(3)
       end
 
       it 'includes all clients with the same email in the group' do
         result = FindDuplicateClients.call(sample_clients)
-        
+
         john_clients = result['john@example.com']
         expect(john_clients.map(&:id)).to contain_exactly(1, 4)
         expect(john_clients.map(&:full_name)).to contain_exactly('John Doe', 'Alice Brown')
@@ -58,7 +58,7 @@ RSpec.describe FindDuplicateClients do
           Client.new(id: 2, full_name: 'Jane Smith', email: 'jane@example.com'),
           Client.new(id: 3, full_name: 'Bob Johnson', email: 'bob@example.com')
         ]
-        
+
         result = FindDuplicateClients.call(unique_clients)
         expect(result).to be_empty
       end
@@ -67,7 +67,7 @@ RSpec.describe FindDuplicateClients do
     context 'when dealing with nil and empty emails' do
       it 'handles clients with nil email addresses' do
         result = FindDuplicateClients.call(sample_clients)
-        
+
         expect(result).to have_key(nil)
         expect(result[nil].length).to eq(2)
         expect(result[nil].map(&:id)).to contain_exactly(6, 7)
@@ -75,7 +75,7 @@ RSpec.describe FindDuplicateClients do
 
       it 'handles clients with empty email addresses' do
         result = FindDuplicateClients.call(sample_clients)
-        
+
         expect(result).to have_key('')
         expect(result[''].length).to eq(2)
         expect(result[''].map(&:id)).to contain_exactly(8, 9)
@@ -83,7 +83,7 @@ RSpec.describe FindDuplicateClients do
 
       it 'treats nil and empty emails as different values' do
         result = FindDuplicateClients.call(sample_clients)
-        
+
         expect(result).to have_key(nil)
         expect(result).to have_key('')
         expect(result[nil].length).to eq(2)
@@ -110,9 +110,9 @@ RSpec.describe FindDuplicateClients do
           Client.new(id: 3, full_name: 'Bob Johnson', email: 'john.tag@example.com'),
           Client.new(id: 4, full_name: 'Alice Brown', email: 'john.tag@example.com')
         ]
-        
+
         result = FindDuplicateClients.call(special_clients)
-        
+
         expect(result).to have_key('john+tag@example.com')
         expect(result).to have_key('john.tag@example.com')
         expect(result['john+tag@example.com'].length).to eq(2)

@@ -97,7 +97,7 @@ RSpec.describe FindClients do
           Client.new(id: 1, full_name: 'John-Doe', email: 'john@example.com'),
           Client.new(id: 2, full_name: 'Jane_Smith', email: 'jane@example.com')
         ]
-        
+
         result = FindClients.call(special_clients, 'john')
         expect(result).to contain_exactly(special_clients[0])
       end

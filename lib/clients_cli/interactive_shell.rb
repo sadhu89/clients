@@ -32,8 +32,6 @@ class InteractiveShell
         break
       when :show_help, :clear_screen, :enter_search_mode, :show_duplicates, :unknown_command, :continue
         handle_main_action(result, file_path, clients, input)
-      else
-        # Do nothing
       end
       puts
     end
@@ -81,8 +79,6 @@ class InteractiveShell
       when :search
         matching_clients = yield Clients.search(file_path, query)
         puts SearchResultsView.show_search_results(matching_clients, query)
-      else
-        # Do nothing
       end
       puts
     end

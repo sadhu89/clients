@@ -19,26 +19,29 @@ class LoadData
   end
 
   def self.read_file_content(file_path)
-    Try { File.read(file_path) }.to_result.or do |e|
-      Failure(ClientsSearchError.new("Cannot read file #{file_path}: #{e.message}"))
-    end
+    Try { File.read(file_path) }.to_result.or { |e| handle_read_error(e, file_path) }
   end
 
   def self.parse_json(content, file_path)
-    Try do
-      JSON.parse(content)
-    end.to_result.or do |e|
-      Failure(ClientsSearchError.new("Invalid JSON in file #{file_path}: #{e.message}"))
-    end
+    Try { JSON.parse(content) }.to_result.or { |e| handle_parse_error(e, file_path) }
   end
 
   def self.create_clients(raw_clients, file_path)
-    Try do
-      Client.from_json_array(raw_clients)
-    end.to_result.or do |e|
-      Failure(ClientsSearchError.new("Invalid client data in file #{file_path}: #{e.message}"))
-    end
+    Try { Client.from_json_array(raw_clients) }.to_result.or { |e| handle_create_error(e, file_path) }
   end
 
-  private_class_method :read_file_content, :parse_json, :create_clients
+  def self.handle_read_error(error, file_path)
+    Failure(ClientsSearchError.new("Cannot read file #{file_path}: #{error.message}"))
+  end
+
+  def self.handle_parse_error(error, file_path)
+    Failure(ClientsSearchError.new("Invalid JSON in file #{file_path}: #{error.message}"))
+  end
+
+  def self.handle_create_error(error, file_path)
+    Failure(ClientsSearchError.new("Invalid client data in file #{file_path}: #{error.message}"))
+  end
+
+  private_class_method :read_file_content, :parse_json, :create_clients, :handle_read_error, :handle_parse_error,
+                       :handle_create_error
 end

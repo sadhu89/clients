@@ -25,7 +25,7 @@ class App < Thor
       puts "Error: #{error.message}"
       exit 1
     else
-      puts "Error: Unexpected result type"
+      puts 'Error: Unexpected result type'
       exit 1
     end
   end

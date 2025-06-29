@@ -2,8 +2,8 @@
 
 source 'https://rubygems.org'
 
-gem 'dry-struct', '~> 1.6'
 gem 'dry-monads', '~> 1.6'
+gem 'dry-struct', '~> 1.6'
 gem 'rspec', '~> 3.12'
 gem 'rubocop', '~> 1.50'
 gem 'simplecov', '~> 0.22', require: false

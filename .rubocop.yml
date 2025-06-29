@@ -36,6 +36,8 @@ Metrics/ModuleLength:
 
 Metrics/BlockLength:
   Max: 30
+  Exclude:
+    - 'spec/**/*'
 
 Metrics/CyclomaticComplexity:
   Max: 10

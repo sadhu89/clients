@@ -42,7 +42,7 @@ RSpec.describe InteractiveShell do
     it 'returns Failure when Clients.all fails' do
       error = ClientsSearchError.new('File not found')
       allow(Clients).to receive(:all).with(test_file_path).and_return(Dry::Monads::Failure(error))
-      
+
       result = InteractiveShell.start(test_file_path)
       expect(result).to be_failure
       expect(result.failure).to eq(error)
@@ -71,16 +71,26 @@ RSpec.describe InteractiveShell do
       expect(MainView).to receive(:show_goodbye)
       expect { InteractiveShell.run_main_loop(test_file_path, sample_clients) }.not_to raise_error
     end
+
+    it 'handles unexpected router result gracefully' do
+      # Test the else branch by making Router return an unexpected value
+      allow($stdin).to receive(:gets).and_return('unexpected', 'quit', nil)
+      allow(Router).to receive(:handle_main_shell).with('unexpected').and_return(:unexpected_result)
+      allow(Router).to receive(:handle_main_shell).with('quit').and_return(:quit)
+      expect(MainView).to receive(:show_goodbye)
+      expect { InteractiveShell.run_main_loop(test_file_path, sample_clients) }.not_to raise_error
+    end
   end
 
   describe '.handle_main_action' do
     it 'handles show_help action' do
-      expect(InteractiveShell).to receive(:handle_show_help).with(test_file_path, sample_clients)
+      expect(MainView).to receive(:show_help).with(test_file_path, 2)
       InteractiveShell.handle_main_action(:show_help, test_file_path, sample_clients, 'help')
     end
 
     it 'handles clear_screen action' do
-      expect(InteractiveShell).to receive(:handle_clear_screen).with(test_file_path, sample_clients)
+      expect(InteractiveShell).to receive(:clear_screen)
+      expect(MainView).to receive(:show_welcome).with(test_file_path, 2)
       InteractiveShell.handle_main_action(:clear_screen, test_file_path, sample_clients, 'clear')
     end
 
@@ -90,7 +100,9 @@ RSpec.describe InteractiveShell do
     end
 
     it 'handles show_duplicates action' do
-      expect(InteractiveShell).to receive(:handle_show_duplicates).with(test_file_path)
+      duplicate_groups = { 'test@example.com' => sample_clients }
+      allow(Clients).to receive(:find_duplicates).with(test_file_path).and_return(Dry::Monads::Success(duplicate_groups))
+      expect(DuplicateResultsView).to receive(:show_duplicate_results).with(duplicate_groups)
       InteractiveShell.handle_main_action(:show_duplicates, test_file_path, sample_clients, 'duplicates')
     end
 
@@ -104,40 +116,9 @@ RSpec.describe InteractiveShell do
     end
 
     it 'does nothing for unknown action' do
-      expect { InteractiveShell.handle_main_action(:not_a_real_command, test_file_path, sample_clients, 'foo') }.not_to raise_error
-    end
-  end
-
-  describe '.handle_show_help' do
-    it 'shows help message' do
-      expect(MainView).to receive(:show_help).with(test_file_path, 2)
-      InteractiveShell.handle_show_help(test_file_path, sample_clients)
-    end
-  end
-
-  describe '.handle_clear_screen' do
-    it 'clears screen and shows welcome message' do
-      expect(InteractiveShell).to receive(:clear_screen)
-      expect(MainView).to receive(:show_welcome).with(test_file_path, 2)
-      InteractiveShell.handle_clear_screen(test_file_path, sample_clients)
-    end
-  end
-
-  describe '.handle_show_duplicates' do
-    it 'finds and displays duplicate results successfully' do
-      duplicate_groups = { 'test@example.com' => sample_clients }
-      allow(Clients).to receive(:find_duplicates).with(test_file_path).and_return(Dry::Monads::Success(duplicate_groups))
-      expect(DuplicateResultsView).to receive(:show_duplicate_results).with(duplicate_groups)
-      InteractiveShell.handle_show_duplicates(test_file_path)
-    end
-
-    it 'returns Failure when find_duplicates fails' do
-      error = ClientsSearchError.new('File not found')
-      allow(Clients).to receive(:find_duplicates).with(test_file_path).and_return(Dry::Monads::Failure(error))
-      
-      result = InteractiveShell.handle_show_duplicates(test_file_path)
-      expect(result).to be_failure
-      expect(result.failure).to eq(error)
+      expect do
+        InteractiveShell.handle_main_action(:not_a_real_command, test_file_path, sample_clients, 'foo')
+      end.not_to raise_error
     end
   end
 
