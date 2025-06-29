@@ -1,8 +1,8 @@
 class FindClients
-  def self.call(clients_data, query)
-    return clients_data if query.nil? || query.empty?
+  def self.call(clients, query)
+    return clients if query.nil? || query.empty?
 
-    clients_data.select do |client|
+    clients.select do |client|
       client['full_name']&.downcase&.include?(query.downcase)
     end
   end
