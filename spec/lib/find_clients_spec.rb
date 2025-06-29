@@ -1,14 +1,15 @@
 require 'spec_helper'
-require_relative '../../lib/client_search'
+require_relative '../../lib/models/client'
+require_relative '../../lib/services/find_clients'
 
 RSpec.describe FindClients do
   let(:sample_clients) do
     [
-      { 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john.doe@example.com' },
-      { 'id' => 2, 'full_name' => 'Jane Smith', 'email' => 'jane.smith@example.com' },
-      { 'id' => 3, 'full_name' => 'Alex Johnson', 'email' => 'alex.johnson@example.com' },
-      { 'id' => 4, 'full_name' => 'Michael Williams', 'email' => 'michael.williams@example.com' },
-      { 'id' => 5, 'full_name' => 'Another Jane Smith', 'email' => 'jane.smith2@example.com' }
+      Client.new(id: 1, full_name: 'John Doe', email: 'john.doe@example.com'),
+      Client.new(id: 2, full_name: 'Jane Smith', email: 'jane.smith@example.com'),
+      Client.new(id: 3, full_name: 'Alex Johnson', email: 'alex.johnson@example.com'),
+      Client.new(id: 4, full_name: 'Michael Williams', email: 'michael.williams@example.com'),
+      Client.new(id: 5, full_name: 'Another Jane Smith', email: 'jane.smith2@example.com')
     ]
   end
 
@@ -67,14 +68,14 @@ RSpec.describe FindClients do
     context 'when dealing with edge cases' do
       let(:edge_case_clients) do
         [
-          { 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john@example.com' },
-          { 'id' => 2, 'full_name' => nil, 'email' => 'nil@example.com' },
-          { 'id' => 3, 'full_name' => '', 'email' => 'empty@example.com' },
-          { 'id' => 4, 'full_name' => '   John   ', 'email' => 'spaces@example.com' }
+          Client.new(id: 1, full_name: 'John Doe', email: 'john@example.com'),
+          Client.new(id: 2, full_name: '', email: 'nil@example.com'),
+          Client.new(id: 3, full_name: '', email: 'empty@example.com'),
+          Client.new(id: 4, full_name: '   John   ', email: 'spaces@example.com')
         ]
       end
 
-      it 'handles nil names gracefully' do
+      it 'handles empty names gracefully' do
         result = FindClients.call(edge_case_clients, 'john')
         expect(result).to eq([edge_case_clients[0], edge_case_clients[3]])
       end
@@ -93,9 +94,9 @@ RSpec.describe FindClients do
     context 'when dealing with special characters' do
       let(:special_clients) do
         [
-          { 'id' => 1, 'full_name' => 'José García', 'email' => 'jose@example.com' },
-          { 'id' => 2, 'full_name' => "O'Connor", 'email' => 'oconnor@example.com' },
-          { 'id' => 3, 'full_name' => 'Smith-Jones', 'email' => 'smithjones@example.com' }
+          Client.new(id: 1, full_name: 'José García', email: 'jose@example.com'),
+          Client.new(id: 2, full_name: "O'Connor", email: 'oconnor@example.com'),
+          Client.new(id: 3, full_name: 'Smith-Jones', email: 'smithjones@example.com')
         ]
       end
 

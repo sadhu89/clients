@@ -1,14 +1,15 @@
 require 'spec_helper'
-require_relative '../../lib/client_duplicates'
+require_relative '../../lib/models/client'
+require_relative '../../lib/services/find_duplicate_clients'
 
 RSpec.describe FindDuplicateClients do
   let(:sample_clients) do
     [
-      { 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john.doe@example.com' },
-      { 'id' => 2, 'full_name' => 'Jane Smith', 'email' => 'jane.smith@example.com' },
-      { 'id' => 3, 'full_name' => 'Alex Johnson', 'email' => 'alex.johnson@example.com' },
-      { 'id' => 4, 'full_name' => 'Michael Williams', 'email' => 'michael.williams@example.com' },
-      { 'id' => 5, 'full_name' => 'Another Jane Smith', 'email' => 'jane.smith2@example.com' }
+      Client.new(id: 1, full_name: 'John Doe', email: 'john.doe@example.com'),
+      Client.new(id: 2, full_name: 'Jane Smith', email: 'jane.smith@example.com'),
+      Client.new(id: 3, full_name: 'Alex Johnson', email: 'alex.johnson@example.com'),
+      Client.new(id: 4, full_name: 'Michael Williams', email: 'michael.williams@example.com'),
+      Client.new(id: 5, full_name: 'Another Jane Smith', email: 'jane.smith2@example.com')
     ]
   end
 
@@ -16,12 +17,12 @@ RSpec.describe FindDuplicateClients do
     context 'when there are duplicate emails' do
       let(:clients_with_duplicates) do
         [
-          { 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john.doe@example.com' },
-          { 'id' => 2, 'full_name' => 'Jane Smith', 'email' => 'jane.smith@example.com' },
-          { 'id' => 3, 'full_name' => 'Alex Johnson', 'email' => 'alex.johnson@example.com' },
-          { 'id' => 4, 'full_name' => 'Another Jane Smith', 'email' => 'jane.smith@example.com' },
-          { 'id' => 5, 'full_name' => 'John Doe Jr', 'email' => 'john.doe@example.com' },
-          { 'id' => 6, 'full_name' => 'Unique Person', 'email' => 'unique@example.com' }
+          Client.new(id: 1, full_name: 'John Doe', email: 'john.doe@example.com'),
+          Client.new(id: 2, full_name: 'Jane Smith', email: 'jane.smith@example.com'),
+          Client.new(id: 3, full_name: 'Alex Johnson', email: 'alex.johnson@example.com'),
+          Client.new(id: 4, full_name: 'Another Jane Smith', email: 'jane.smith@example.com'),
+          Client.new(id: 5, full_name: 'John Doe Jr', email: 'john.doe@example.com'),
+          Client.new(id: 6, full_name: 'Unique Person', email: 'unique@example.com')
         ]
       end
 
@@ -46,9 +47,9 @@ RSpec.describe FindDuplicateClients do
 
       it 'handles case-insensitive email matching' do
         clients_with_case_variations = [
-          { 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john.doe@example.com' },
-          { 'id' => 2, 'full_name' => 'Jane Smith', 'email' => 'JOHN.DOE@EXAMPLE.COM' },
-          { 'id' => 3, 'full_name' => 'Alex Johnson', 'email' => 'John.Doe@Example.com' }
+          Client.new(id: 1, full_name: 'John Doe', email: 'john.doe@example.com'),
+          Client.new(id: 2, full_name: 'Jane Smith', email: 'JOHN.DOE@EXAMPLE.COM'),
+          Client.new(id: 3, full_name: 'Alex Johnson', email: 'John.Doe@Example.com')
         ]
         
         result = FindDuplicateClients.call(clients_with_case_variations)
@@ -67,9 +68,9 @@ RSpec.describe FindDuplicateClients do
     context 'when dealing with edge cases' do
       it 'handles nil email addresses' do
         clients_with_nil_emails = [
-          { 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john@example.com' },
-          { 'id' => 2, 'full_name' => 'Jane Smith', 'email' => nil },
-          { 'id' => 3, 'full_name' => 'Alex Johnson', 'email' => nil }
+          Client.new(id: 1, full_name: 'John Doe', email: 'john@example.com'),
+          Client.new(id: 2, full_name: 'Jane Smith', email: nil),
+          Client.new(id: 3, full_name: 'Alex Johnson', email: nil)
         ]
         
         result = FindDuplicateClients.call(clients_with_nil_emails)
@@ -79,9 +80,9 @@ RSpec.describe FindDuplicateClients do
 
       it 'handles empty email addresses' do
         clients_with_empty_emails = [
-          { 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john@example.com' },
-          { 'id' => 2, 'full_name' => 'Jane Smith', 'email' => '' },
-          { 'id' => 3, 'full_name' => 'Alex Johnson', 'email' => '' }
+          Client.new(id: 1, full_name: 'John Doe', email: 'john@example.com'),
+          Client.new(id: 2, full_name: 'Jane Smith', email: ''),
+          Client.new(id: 3, full_name: 'Alex Johnson', email: '')
         ]
         
         result = FindDuplicateClients.call(clients_with_empty_emails)
@@ -95,7 +96,7 @@ RSpec.describe FindDuplicateClients do
       end
 
       it 'handles single client' do
-        single_client = [{ 'id' => 1, 'full_name' => 'John Doe', 'email' => 'john@example.com' }]
+        single_client = [Client.new(id: 1, full_name: 'John Doe', email: 'john@example.com')]
         result = FindDuplicateClients.call(single_client)
         expect(result).to eq({})
       end

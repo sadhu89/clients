@@ -1,7 +1,8 @@
 require 'thor'
 require 'json'
-require_relative 'lib/client_search'
-require_relative 'lib/client_duplicates'
+require_relative 'lib/models/client'
+require_relative 'lib/services/find_clients'
+require_relative 'lib/services/find_duplicate_clients'
 
 class ClientsSearch < Thor
   DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), 'data', 'clients.json')
@@ -19,9 +20,13 @@ class ClientsSearch < Thor
     end
     
     begin
-      clients = JSON.parse(File.read(file_path))
+      raw_clients = JSON.parse(File.read(file_path))
+      clients = Client.from_json_array(raw_clients)
     rescue JSON::ParserError => e
       puts "Error: Invalid JSON in file #{file_path}: #{e.message}"
+      exit 1
+    rescue Dry::Struct::Error => e
+      puts "Error: Invalid client data in file #{file_path}: #{e.message}"
       exit 1
     end
 
@@ -96,6 +101,31 @@ class ClientsSearch < Thor
     end
   end
 
+  desc "search", "Search for clients by name"
+  option :file, type: :string, aliases: '-f', desc: "Path to the clients JSON file"
+  
+  def search(query)
+    file_path = options[:file] || DEFAULT_FILE_PATH
+    unless File.exist?(file_path)
+      puts "Error: File not found at #{file_path}"
+      exit 1
+    end
+    
+    begin
+      raw_clients = JSON.parse(File.read(file_path))
+      clients = Client.from_json_array(raw_clients)
+    rescue JSON::ParserError => e
+      puts "Error: Invalid JSON in file #{file_path}: #{e.message}"
+      exit 1
+    rescue Dry::Struct::Error => e
+      puts "Error: Invalid client data in file #{file_path}: #{e.message}"
+      exit 1
+    end
+
+    matching_clients = FindClients.call(clients, query)
+    display_search_results(matching_clients, query)
+  end
+
   private
 
   def search_mode(clients)
@@ -130,9 +160,13 @@ class ClientsSearch < Thor
       puts "✅ Found #{matching_clients.length} client(s) matching '#{query}':"
       puts
       matching_clients.each_with_index do |client, index|
-        puts "#{index + 1}. #{client['full_name']}"
-        puts "   📧 #{client['email']}"
-        puts "   🆔 ID: #{client['id']}"
+        puts "#{index + 1}. #{client.full_name}"
+        puts "   📧 #{client.email}"
+        puts "   🆔 ID: #{client.id}"
+        puts "   Name: #{client.full_name}"
+        puts "   Email: #{client.email}"
+        puts "   ID: #{client.id}"
+        puts "-" * 40
         puts
       end
     end
