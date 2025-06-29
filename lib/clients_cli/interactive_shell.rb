@@ -26,54 +26,36 @@ class InteractiveShell
       break if input.nil?
 
       result = Router.handle_main_shell(input)
-      break if should_quit_main?(result, file_path, clients, input)
-
+      case result
+      when :quit
+        puts MainView.show_goodbye
+        break
+      when :show_help, :clear_screen, :enter_search_mode, :show_duplicates, :unknown_command, :continue
+        handle_main_action(result, file_path, clients, input)
+      else
+        # Do nothing
+      end
       puts
-    end
-  end
-
-  def self.should_quit_main?(result, file_path, clients, input)
-    case result
-    when :quit
-      puts MainView.show_goodbye
-      true
-    when :show_help, :clear_screen, :enter_search_mode, :show_duplicates, :unknown_command, :continue
-      handle_main_action(result, file_path, clients, input)
-      false
-    else
-      nil
     end
   end
 
   def self.handle_main_action(result, file_path, clients, input)
     case result
     when :show_help
-      handle_show_help(file_path, clients)
+      puts MainView.show_help(file_path, clients.length)
     when :clear_screen
-      handle_clear_screen(file_path, clients)
+      clear_screen
+      puts MainView.show_welcome(file_path, clients.length)
     when :enter_search_mode
       start_search_mode(file_path)
     when :show_duplicates
-      handle_show_duplicates(file_path)
+      duplicate_groups = yield Clients.find_duplicates(file_path)
+      puts DuplicateResultsView.show_duplicate_results(duplicate_groups)
     when :unknown_command
       puts MainView.show_unknown_command(input)
     when :continue
       # Do nothing
     end
-  end
-
-  def self.handle_show_help(file_path, clients)
-    puts MainView.show_help(file_path, clients.length)
-  end
-
-  def self.handle_clear_screen(file_path, clients)
-    clear_screen
-    puts MainView.show_welcome(file_path, clients.length)
-  end
-
-  def self.handle_show_duplicates(file_path)
-    duplicate_groups = yield Clients.find_duplicates(file_path)
-    puts DuplicateResultsView.show_duplicate_results(duplicate_groups)
   end
 
   def self.clear_screen
@@ -92,25 +74,17 @@ class InteractiveShell
       break if query.nil?
 
       result = Router.handle_search_mode(query)
-      break if should_quit_search?(result, file_path, query)
-
+      case result
+      when :quit_search_mode
+        puts MainView.show_returning_to_menu
+        break
+      when :search
+        matching_clients = yield Clients.search(file_path, query)
+        puts SearchResultsView.show_search_results(matching_clients, query)
+      else
+        # Do nothing
+      end
       puts
-    end
-  end
-
-  def self.should_quit_search?(result, file_path, query)
-    case result
-    when :quit_search_mode
-      puts MainView.show_returning_to_menu
-      true
-    when :search
-      matching_clients = yield Clients.search(file_path, query)
-      puts SearchResultsView.show_search_results(matching_clients, query)
-      false
-    when :continue
-      false
-    else
-      nil
     end
   end
 end
