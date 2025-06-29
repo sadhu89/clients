@@ -6,15 +6,18 @@ require_relative 'lib/client_duplicates'
 class ClientsSearch < Thor
   DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), 'data', 'clients.json')
   
-  desc "search QUERY", "Search through all clients dataset and return those with names partially matching a given search query"
+  default_task :repl
+
+  desc "repl", "Start an interactive REPL for searching clients"
   option :file, type: :string, aliases: '-f', desc: "Path to the clients JSON file"
   
-  def search(query)
+  def repl
     file_path = options[:file] || DEFAULT_FILE_PATH
     unless File.exist?(file_path)
       puts "Error: File not found at #{file_path}"
       exit 1
     end
+    
     begin
       clients = JSON.parse(File.read(file_path))
     rescue JSON::ParserError => e
@@ -22,54 +25,117 @@ class ClientsSearch < Thor
       exit 1
     end
 
-    matching_clients = FindClients.call(clients, query)
+    current_file_path = file_path
+    current_clients = clients
+    last_query = nil
+    last_results = []
 
-    if matching_clients.empty?
-      puts "No clients found matching '#{query}'"
-    else
-      puts "Found #{matching_clients.length} client(s) matching '#{query}':"
-      puts
-      matching_clients.each do |client|
-        puts "ID: #{client['id']}"
-        puts "Name: #{client['full_name']}"
-        puts "Email: #{client['email']}"
-        puts "-" * 40
+    puts "🔍 Clients Search REPL"
+    puts "📁 Data file: #{current_file_path}"
+    puts "👥 Total clients: #{current_clients.length}"
+    puts
+    puts "Commands:"
+    puts "  • 's' or 'search' - Start a search"
+    puts "  • 'd' or 'duplicates' - Find duplicate emails"
+    puts "  • 'c' or 'clear' - Clear screen"
+    puts "  • 'h' or 'help' - Show this help"
+    puts "  • 'q' or 'quit' - Exit"
+    puts
+
+    loop do
+      print "clients> "
+      input = STDIN.gets&.chomp&.strip
+      break if input.nil?
+      
+      case input.downcase
+      when 'q', 'quit', 'exit'
+        puts "👋 Goodbye!"
+        break
+      when 'h', 'help'
+        puts "🔍 Clients Search REPL"
+        puts "📁 Data file: #{current_file_path}"
+        puts "👥 Total clients: #{current_clients.length}"
+        puts
+        puts "Commands:"
+        puts "  • 's' or 'search' - Start a search"
+        puts "  • 'd' or 'duplicates' - Find duplicate emails"
+        puts "  • 'c' or 'clear' - Clear screen"
+        puts "  • 'h' or 'help' - Show this help"
+        puts "  • 'q' or 'quit' - Exit"
+      when 'c', 'clear'
+        system('clear') || system('cls')
+        puts "🔍 Clients Search REPL"
+        puts "📁 Data file: #{current_file_path}"
+        puts "👥 Total clients: #{current_clients.length}"
+        puts
+      when 'd', 'duplicates'
+        puts "🔍 Searching for duplicate emails..."
+        duplicate_groups = FindDuplicateClients.call(current_clients)
+        if duplicate_groups.empty?
+          puts "✅ No duplicate email addresses found"
+        else
+          puts "⚠️  Found #{duplicate_groups.length} email address(es) with duplicates:"
+          puts
+          duplicate_groups.each do |email, clients|
+            puts "📧 #{email} (#{clients.length} duplicates)"
+            clients.each do |client|
+              puts "   • #{client['full_name']} (ID: #{client['id']})"
+            end
+            puts
+          end
+        end
+      when 's', 'search'
+        search_mode(current_clients)
+      when ''
+        # Do nothing for empty input
+      else
+        puts "❌ Unknown command: '#{input}'"
+        puts "💡 Type 'h' or 'help' for available commands"
       end
+      puts
     end
   end
 
-  desc "duplicates", "Find clients with duplicate email addresses in the dataset"
-  option :file, type: :string, aliases: '-f', desc: "Path to the clients JSON file"
-  
-  def duplicates
-    file_path = options[:file] || DEFAULT_FILE_PATH
-    unless File.exist?(file_path)
-      puts "Error: File not found at #{file_path}"
-      exit 1
-    end
-    begin
-      clients = JSON.parse(File.read(file_path))
-    rescue JSON::ParserError => e
-      puts "Error: Invalid JSON in file #{file_path}: #{e.message}"
-      exit 1
-    end
+  private
 
-    duplicate_groups = FindDuplicateClients.call(clients)
+  def search_mode(clients)
+    puts "🔍 Search mode"
+    puts "💡 Type your search query or '/q' to return to main menu"
+    puts
 
-    if duplicate_groups.empty?
-      puts "No duplicate email addresses found in the dataset."
-    else
-      puts "Found #{duplicate_groups.length} email address(es) with duplicates:"
+    loop do
+      print "search> "
+      query = STDIN.gets&.chomp&.strip
+      break if query.nil?
+      
+      case query.downcase
+      when '/q', '/quit'
+        puts "👋 Returning to main menu"
+        break
+      when ''
+        # Do nothing for empty input
+      else
+        puts "🔍 Searching for: '#{query}'"
+        matching_clients = FindClients.call(clients, query)
+        display_search_results(matching_clients, query)
+      end
       puts
-      duplicate_groups.each do |email, clients|
-        puts "Email: #{email}"
-        puts "Number of duplicates: #{clients.length}"
-        puts "Clients with this email:"
-        clients.each do |client|
-          puts "  - ID: #{client['id']}, Name: #{client['full_name']}"
-        end
-        puts "-" * 40
+    end
+  end
+
+  def display_search_results(matching_clients, query)
+    if matching_clients.empty?
+      puts "❌ No clients found matching '#{query}'"
+    else
+      puts "✅ Found #{matching_clients.length} client(s) matching '#{query}':"
+      puts
+      matching_clients.each_with_index do |client, index|
+        puts "#{index + 1}. #{client['full_name']}"
+        puts "   📧 #{client['email']}"
+        puts "   🆔 ID: #{client['id']}"
+        puts
       end
     end
   end
 end
+
