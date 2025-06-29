@@ -1,6 +1,6 @@
 require 'thor'
 require 'json'
-require_relative 'lib/client_searcher'
+require_relative 'lib/client_search'
 
 class ClientsSearch < Thor
   DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), 'data', 'clients.json')
@@ -21,15 +21,14 @@ class ClientsSearch < Thor
       exit 1
     end
 
-    searcher = ClientSearcher.new(clients_data)
-    result = searcher.search_with_details(query)
+    matching_clients = FindClients.call(clients_data, query)
 
-    if result[:count] == 0
+    if matching_clients.empty?
       puts "No clients found matching '#{query}'"
     else
-      puts "Found #{result[:count]} client(s) matching '#{query}':"
+      puts "Found #{matching_clients.length} client(s) matching '#{query}':"
       puts
-      result[:clients].each do |client|
+      matching_clients.each do |client|
         puts "ID: #{client['id']}"
         puts "Name: #{client['full_name']}"
         puts "Email: #{client['email']}"
