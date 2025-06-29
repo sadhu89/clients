@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dry/monads'
 require_relative '../clients/clients'
 require_relative 'views/main_view'
 require_relative 'views/search_mode_view'
@@ -9,11 +10,13 @@ require_relative 'router'
 
 # Interactive shell for client search operations
 class InteractiveShell
-  def self.start(file_path)
-    clients = Clients.all(file_path)
-    puts MainView.show_welcome(file_path, clients.length)
+  extend Dry::Monads[:result, :do]
 
+  def self.start(file_path)
+    clients = yield Clients.all(file_path)
+    puts MainView.show_welcome(file_path, clients.length)
     run_main_loop(file_path, clients)
+    Success()
   end
 
   def self.run_main_loop(file_path, clients)
@@ -37,6 +40,8 @@ class InteractiveShell
     when :show_help, :clear_screen, :enter_search_mode, :show_duplicates, :unknown_command, :continue
       handle_main_action(result, file_path, clients, input)
       false
+    else
+      nil
     end
   end
 
@@ -67,7 +72,7 @@ class InteractiveShell
   end
 
   def self.handle_show_duplicates(file_path)
-    duplicate_groups = Clients.find_duplicates(file_path)
+    duplicate_groups = yield Clients.find_duplicates(file_path)
     puts DuplicateResultsView.show_duplicate_results(duplicate_groups)
   end
 
@@ -99,11 +104,13 @@ class InteractiveShell
       puts MainView.show_returning_to_menu
       true
     when :search
-      matching_clients = Clients.search(file_path, query)
+      matching_clients = yield Clients.search(file_path, query)
       puts SearchResultsView.show_search_results(matching_clients, query)
       false
     when :continue
       false
+    else
+      nil
     end
   end
 end

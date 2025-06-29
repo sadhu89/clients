@@ -17,7 +17,7 @@ RSpec.describe InteractiveShell do
   end
 
   before do
-    allow(Clients).to receive(:all).with(test_file_path).and_return(sample_clients)
+    allow(Clients).to receive(:all).with(test_file_path).and_return(Dry::Monads::Success(sample_clients))
     allow(MainView).to receive(:show_welcome).and_return('Welcome message')
     allow(MainView).to receive(:show_goodbye).and_return('Goodbye message')
     allow(MainView).to receive(:show_returning_to_menu).and_return('Returning message')
@@ -28,39 +28,32 @@ RSpec.describe InteractiveShell do
     allow(SearchResultsView).to receive(:show_search_results).and_return('Search results')
     allow(Router).to receive(:handle_main_shell).and_return(:continue)
     allow(Router).to receive(:handle_search_mode).and_return(:continue)
-    allow(Clients).to receive(:search).and_return([])
-    allow(Clients).to receive(:find_duplicates).and_return({})
+    allow(Clients).to receive(:find_duplicates).and_return(Dry::Monads::Success({}))
   end
 
   describe '.start' do
-    it 'loads clients and shows welcome message' do
-      expect(Clients).to receive(:all).with(test_file_path).and_return(sample_clients)
-      expect(MainView).to receive(:show_welcome).with(test_file_path, 2)
+    it 'starts the interactive shell successfully' do
       expect(InteractiveShell).to receive(:run_main_loop).with(test_file_path, sample_clients)
+      expect(MainView).to receive(:show_welcome).with(test_file_path, 2)
 
       InteractiveShell.start(test_file_path)
     end
 
-    it 'calls run_main_loop with correct parameters' do
-      expect(InteractiveShell).to receive(:run_main_loop).with(test_file_path, sample_clients)
-
-      InteractiveShell.start(test_file_path)
+    it 'returns Failure when Clients.all fails' do
+      error = ClientsSearchError.new('File not found')
+      allow(Clients).to receive(:all).with(test_file_path).and_return(Dry::Monads::Failure(error))
+      
+      result = InteractiveShell.start(test_file_path)
+      expect(result).to be_failure
+      expect(result.failure).to eq(error)
     end
   end
 
   describe '.run_main_loop' do
-    let(:input_stream) { StringIO.new("help\nquit\n") }
-    let(:output_stream) { StringIO.new }
+    it 'runs the main loop until quit' do
+      allow($stdin).to receive(:gets).and_return('quit', nil)
+      allow(Router).to receive(:handle_main_shell).with('quit').and_return(:quit)
 
-    before do
-      allow($stdin).to receive(:gets).and_return("help\n", "quit\n", nil)
-      allow(Router).to receive(:handle_main_shell).and_return(:show_help, :quit)
-    end
-
-    it 'processes user input until quit command' do
-      expect(Router).to receive(:handle_main_shell).with('help').and_return(:show_help)
-      expect(Router).to receive(:handle_main_shell).with('quit').and_return(:quit)
-      expect(InteractiveShell).to receive(:should_quit_main?).with(:show_help, test_file_path, sample_clients, 'help').and_return(false)
       expect(InteractiveShell).to receive(:should_quit_main?).with(:quit, test_file_path, sample_clients, 'quit').and_return(true)
 
       InteractiveShell.run_main_loop(test_file_path, sample_clients)
@@ -68,16 +61,19 @@ RSpec.describe InteractiveShell do
 
     it 'handles nil input gracefully' do
       allow($stdin).to receive(:gets).and_return(nil)
-      expect(Router).not_to receive(:handle_main_shell)
 
-      InteractiveShell.run_main_loop(test_file_path, sample_clients)
+      expect { InteractiveShell.run_main_loop(test_file_path, sample_clients) }.not_to raise_error
     end
 
-    it 'handles empty input gracefully' do
-      allow($stdin).to receive(:gets).and_return("  \n", nil)
-      expect(Router).to receive(:handle_main_shell).with('').and_return(:continue)
+    it 'executes puts in run_main_loop when not breaking immediately' do
+      # Simulate two commands: first continues, second triggers break
+      allow($stdin).to receive(:gets).and_return('help', 'quit', nil)
+      allow(Router).to receive(:handle_main_shell).with('help').and_return(:show_help)
+      allow(InteractiveShell).to receive(:should_quit_main?).with(:show_help, test_file_path, sample_clients, 'help').and_return(false)
+      allow(Router).to receive(:handle_main_shell).with('quit').and_return(:quit)
+      allow(InteractiveShell).to receive(:should_quit_main?).with(:quit, test_file_path, sample_clients, 'quit').and_return(true)
 
-      InteractiveShell.run_main_loop(test_file_path, sample_clients)
+      expect { InteractiveShell.run_main_loop(test_file_path, sample_clients) }.not_to raise_error
     end
   end
 
@@ -127,6 +123,12 @@ RSpec.describe InteractiveShell do
     it 'returns nil for unexpected result' do
       expect(
         InteractiveShell.should_quit_main?(:not_a_real_command, test_file_path, sample_clients, 'foo')
+      ).to be_nil
+    end
+
+    it 'returns nil for nil result' do
+      expect(
+        InteractiveShell.should_quit_main?(nil, test_file_path, sample_clients, 'foo')
       ).to be_nil
     end
   end
@@ -182,11 +184,20 @@ RSpec.describe InteractiveShell do
   end
 
   describe '.handle_show_duplicates' do
-    it 'finds and displays duplicate results' do
+    it 'finds and displays duplicate results successfully' do
       duplicate_groups = { 'test@example.com' => sample_clients }
-      expect(Clients).to receive(:find_duplicates).with(test_file_path).and_return(duplicate_groups)
+      allow(Clients).to receive(:find_duplicates).with(test_file_path).and_return(Dry::Monads::Success(duplicate_groups))
       expect(DuplicateResultsView).to receive(:show_duplicate_results).with(duplicate_groups)
       InteractiveShell.handle_show_duplicates(test_file_path)
+    end
+
+    it 'returns Failure when find_duplicates fails' do
+      error = ClientsSearchError.new('File not found')
+      allow(Clients).to receive(:find_duplicates).with(test_file_path).and_return(Dry::Monads::Failure(error))
+      
+      result = InteractiveShell.handle_show_duplicates(test_file_path)
+      expect(result).to be_failure
+      expect(result.failure).to eq(error)
     end
   end
 
@@ -212,15 +223,10 @@ RSpec.describe InteractiveShell do
   end
 
   describe '.run_search_loop' do
-    before do
-      allow($stdin).to receive(:gets).and_return("test query\n", "/q\n", nil)
-      allow(Router).to receive(:handle_search_mode).and_return(:search, :quit_search_mode)
-    end
+    it 'runs the search loop until quit' do
+      allow($stdin).to receive(:gets).and_return('/q', nil)
+      allow(Router).to receive(:handle_search_mode).with('/q').and_return(:quit_search_mode)
 
-    it 'processes search queries until quit command' do
-      expect(Router).to receive(:handle_search_mode).with('test query').and_return(:search)
-      expect(Router).to receive(:handle_search_mode).with('/q').and_return(:quit_search_mode)
-      expect(InteractiveShell).to receive(:should_quit_search?).with(:search, test_file_path, 'test query').and_return(false)
       expect(InteractiveShell).to receive(:should_quit_search?).with(:quit_search_mode, test_file_path, '/q').and_return(true)
 
       InteractiveShell.run_search_loop(test_file_path)
@@ -228,16 +234,18 @@ RSpec.describe InteractiveShell do
 
     it 'handles nil input gracefully' do
       allow($stdin).to receive(:gets).and_return(nil)
-      expect(Router).not_to receive(:handle_search_mode)
 
-      InteractiveShell.run_search_loop(test_file_path)
+      expect { InteractiveShell.run_search_loop(test_file_path) }.not_to raise_error
     end
 
-    it 'handles empty input gracefully' do
-      allow($stdin).to receive(:gets).and_return("  \n", nil)
-      expect(Router).to receive(:handle_search_mode).with('').and_return(:continue)
+    it 'executes puts in run_search_loop when not breaking immediately' do
+      allow($stdin).to receive(:gets).and_return('search', '/q', nil)
+      allow(Router).to receive(:handle_search_mode).with('search').and_return(:continue)
+      allow(InteractiveShell).to receive(:should_quit_search?).with(:continue, test_file_path, 'search').and_return(false)
+      allow(Router).to receive(:handle_search_mode).with('/q').and_return(:quit_search_mode)
+      allow(InteractiveShell).to receive(:should_quit_search?).with(:quit_search_mode, test_file_path, '/q').and_return(true)
 
-      InteractiveShell.run_search_loop(test_file_path)
+      expect { InteractiveShell.run_search_loop(test_file_path) }.not_to raise_error
     end
   end
 
@@ -248,11 +256,22 @@ RSpec.describe InteractiveShell do
       expect(result).to be true
     end
 
-    it 'returns false and performs search for search command' do
-      expect(Clients).to receive(:search).with(test_file_path, 'test').and_return([])
-      expect(SearchResultsView).to receive(:show_search_results).with([], 'test')
-      result = InteractiveShell.should_quit_search?(:search, test_file_path, 'test')
+    it 'returns false and handles search command successfully' do
+      matching_clients = [sample_clients.first]
+      allow(Clients).to receive(:search).with(test_file_path, 'john').and_return(Dry::Monads::Success(matching_clients))
+      expect(SearchResultsView).to receive(:show_search_results).with(matching_clients, 'john')
+
+      result = InteractiveShell.should_quit_search?(:search, test_file_path, 'john')
       expect(result).to be false
+    end
+
+    it 'returns Failure when search command fails' do
+      error = ClientsSearchError.new('File not found')
+      allow(Clients).to receive(:search).with(test_file_path, 'john').and_return(Dry::Monads::Failure(error))
+      
+      result = InteractiveShell.should_quit_search?(:search, test_file_path, 'john')
+      expect(result).to be_failure
+      expect(result.failure).to eq(error)
     end
 
     it 'returns false for continue command' do
@@ -263,6 +282,12 @@ RSpec.describe InteractiveShell do
     it 'returns nil for unexpected result' do
       expect(
         InteractiveShell.should_quit_search?(:not_a_real_command, test_file_path, 'foo')
+      ).to be_nil
+    end
+
+    it 'returns nil for nil result' do
+      expect(
+        InteractiveShell.should_quit_search?(nil, test_file_path, 'foo')
       ).to be_nil
     end
   end

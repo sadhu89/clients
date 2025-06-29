@@ -17,7 +17,6 @@ RSpec.describe 'bin/clients executable' do
     it 'requires the necessary files' do
       content = File.read(executable_path)
       expect(content).to include("require_relative '../lib/clients_cli/app'")
-      expect(content).to include("require_relative '../lib/clients/services/load_data'")
     end
 
     it 'starts the App' do
@@ -25,10 +24,10 @@ RSpec.describe 'bin/clients executable' do
       expect(content).to include('App.start')
     end
 
-    it 'handles ClientsSearchError' do
+    it 'does not have exception handling since we use dry-monads' do
       content = File.read(executable_path)
-      expect(content).to include('rescue ClientsSearchError => _e')
-      expect(content).to include('exit 1')
+      expect(content).not_to include('rescue')
+      expect(content).not_to include('ClientsSearchError')
     end
   end
 
@@ -38,11 +37,11 @@ RSpec.describe 'bin/clients executable' do
       expect { RubyVM::InstructionSequence.compile_file(executable_path) }.not_to raise_error
     end
 
-    it 'has proper error handling structure' do
+    it 'has clean structure without exception handling' do
       content = File.read(executable_path)
-      expect(content).to include('begin')
-      expect(content).to include('rescue')
-      expect(content).to include('end')
+      expect(content).not_to include('begin')
+      expect(content).not_to include('rescue')
+      expect(content).not_to include('end')
     end
   end
 end

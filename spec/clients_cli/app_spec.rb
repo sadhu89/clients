@@ -13,11 +13,13 @@ RSpec.describe App do
 
   describe '#repl' do
     it 'starts interactive shell with default file path when no file option provided' do
+      allow(InteractiveShell).to receive(:start).and_return(Dry::Monads::Success())
       expect(InteractiveShell).to receive(:start).with(App::DEFAULT_FILE_PATH)
       app.repl
     end
 
     it 'starts interactive shell with custom file path when file option provided' do
+      allow(InteractiveShell).to receive(:start).and_return(Dry::Monads::Success())
       custom_path = '/path/to/custom/clients.json'
       expect(InteractiveShell).to receive(:start).with(custom_path)
       app.options = { file: custom_path }
@@ -25,10 +27,24 @@ RSpec.describe App do
     end
 
     it 'handles file option from Thor options' do
+      allow(InteractiveShell).to receive(:start).and_return(Dry::Monads::Success())
       custom_path = '/path/to/custom/clients.json'
       expect(InteractiveShell).to receive(:start).with(custom_path)
       allow(app).to receive(:options).and_return({ file: custom_path })
       app.repl
+    end
+
+    it 'prints error and exits on failure' do
+      error = ClientsSearchError.new('File not found')
+      allow(InteractiveShell).to receive(:start).and_return(Dry::Monads::Failure(error))
+      expect { app.repl }.to raise_error(SystemExit)
+    end
+
+    it 'handles unexpected result type and exits' do
+      # Mock a result that's neither Success nor Failure
+      unexpected_result = double('UnexpectedResult')
+      allow(InteractiveShell).to receive(:start).and_return(unexpected_result)
+      expect { app.repl }.to raise_error(SystemExit)
     end
   end
 

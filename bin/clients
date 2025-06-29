@@ -2,10 +2,5 @@
 # frozen_string_literal: true
 
 require_relative '../lib/clients_cli/app'
-require_relative '../lib/clients/services/load_data'
 
-begin
-  App.start
-rescue ClientsSearchError => _e
-  exit 1
-end
+App.start

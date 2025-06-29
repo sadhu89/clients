@@ -34,24 +34,37 @@ RSpec.describe LoadData do
     it 'loads valid client data from JSON file' do
       result = LoadData.call(valid_json_file)
 
-      expect(result).to be_an(Array)
-      expect(result.length).to eq(2)
-      expect(result.first).to be_a(Client)
-      expect(result.first.id).to eq(1)
-      expect(result.first.full_name).to eq('John Doe')
-      expect(result.first.email).to eq('john@example.com')
+      expect(result).to be_success
+      expect(result.value!).to be_an(Array)
+      expect(result.value!.length).to eq(2)
+      expect(result.value!.first).to be_a(Client)
+      expect(result.value!.first.id).to eq(1)
+      expect(result.value!.first.full_name).to eq('John Doe')
+      expect(result.value!.first.email).to eq('john@example.com')
     end
 
-    it 'raises ClientsSearchError when file does not exist' do
-      expect { LoadData.call(nonexistent_file) }.to raise_error(ClientsSearchError, /File not found/)
+    it 'returns failure when file does not exist' do
+      result = LoadData.call(nonexistent_file)
+
+      expect(result).to be_failure
+      expect(result.failure).to be_a(ClientsSearchError)
+      expect(result.failure.message).to include('File not found')
     end
 
-    it 'raises ClientsSearchError when JSON is invalid' do
-      expect { LoadData.call(invalid_json_file) }.to raise_error(ClientsSearchError, /Invalid JSON/)
+    it 'returns failure when JSON is invalid' do
+      result = LoadData.call(invalid_json_file)
+
+      expect(result).to be_failure
+      expect(result.failure).to be_a(ClientsSearchError)
+      expect(result.failure.message).to include('Invalid JSON')
     end
 
-    it 'raises ClientsSearchError when client data is invalid' do
-      expect { LoadData.call(invalid_data_file) }.to raise_error(ClientsSearchError, /Invalid client data/)
+    it 'returns failure when client data is invalid' do
+      result = LoadData.call(invalid_data_file)
+
+      expect(result).to be_failure
+      expect(result.failure).to be_a(ClientsSearchError)
+      expect(result.failure.message).to include('Invalid client data')
     end
 
     it 'handles empty JSON array' do
@@ -59,7 +72,8 @@ RSpec.describe LoadData do
       File.write(empty_file, '[]')
 
       result = LoadData.call(empty_file)
-      expect(result).to eq([])
+      expect(result).to be_success
+      expect(result.value!).to eq([])
 
       File.delete(empty_file)
     end
@@ -74,10 +88,28 @@ RSpec.describe LoadData do
 
       result = LoadData.call(partial_data_file)
 
-      expect(result.first.email).to eq('')
-      expect(result.last.full_name).to eq('')
+      expect(result).to be_success
+      expect(result.value!.first.email).to eq('')
+      expect(result.value!.last.full_name).to eq('')
 
       File.delete(partial_data_file)
+    end
+
+    it 'handles file read errors' do
+      # Create a file that will cause a read error
+      unreadable_file = 'spec/fixtures/unreadable_clients.json'
+      File.write(unreadable_file, 'test')
+      File.chmod(0o000, unreadable_file) # Make file unreadable
+
+      result = LoadData.call(unreadable_file)
+
+      expect(result).to be_failure
+      expect(result.failure).to be_a(ClientsSearchError)
+      expect(result.failure.message).to include('Cannot read file')
+
+      # Restore permissions for cleanup
+      File.chmod(0o644, unreadable_file)
+      File.delete(unreadable_file)
     end
   end
 end

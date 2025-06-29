@@ -51,8 +51,8 @@ bundle exec rubocop -a
 
 The project uses SimpleCov to track test coverage:
 
-- **Line Coverage**: 98.86%
-- **Branch Coverage**: 85.19%
+- **Line Coverage**: 100.0%
+- **Branch Coverage**: 100.0%
 
 Coverage reports are generated in the `coverage/` directory. Open `coverage/index.html` in your browser to view detailed coverage information.
 
@@ -99,6 +99,7 @@ Coverage reports are generated in the `coverage/` directory. Open `coverage/inde
 
 - **thor**: CLI framework for Ruby applications
 - **dry-struct**: Data structure library
+- **dry-monads**: Functional programming utilities
 - **rspec**: Testing framework (development dependency)
 - **rubocop**: Code style checker (development dependency)
 - **simplecov**: Test coverage tool (development dependency)
