@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../../../lib/clients/models/client'
 
 RSpec.describe Client do
@@ -23,7 +25,7 @@ RSpec.describe Client do
         full_name: 'John Doe',
         email: 'john@example.com'
       )
-      
+
       expect(client.id).to eq(1)
       expect(client.full_name).to eq('John Doe')
       expect(client.email).to eq('john@example.com')
@@ -37,9 +39,9 @@ RSpec.describe Client do
         'full_name' => 'Jane Doe',
         'email' => 'jane@example.com'
       }
-      
+
       client = Client.from_hash(hash)
-      
+
       expect(client.id).to eq(1)
       expect(client.full_name).to eq('Jane Doe')
       expect(client.email).to eq('jane@example.com')
@@ -48,14 +50,14 @@ RSpec.describe Client do
     it 'handles missing full_name with default empty string' do
       hash = { 'id' => 1, 'email' => 'test@example.com' }
       client = Client.from_hash(hash)
-      
+
       expect(client.full_name).to eq('')
     end
 
     it 'handles missing email with default empty string' do
       hash = { 'id' => 1, 'full_name' => 'Test User' }
       client = Client.from_hash(hash)
-      
+
       expect(client.email).to eq('')
     end
 
@@ -65,9 +67,9 @@ RSpec.describe Client do
         'full_name' => nil,
         'email' => nil
       }
-      
+
       client = Client.from_hash(hash)
-      
+
       expect(client.full_name).to eq('')
       expect(client.email).to eq('')
     end
@@ -79,9 +81,9 @@ RSpec.describe Client do
         { 'id' => 1, 'full_name' => 'Alice', 'email' => 'alice@example.com' },
         { 'id' => 2, 'full_name' => 'Bob', 'email' => 'bob@example.com' }
       ]
-      
+
       clients = Client.from_json_array(json_array)
-      
+
       expect(clients).to be_an(Array)
       expect(clients.length).to eq(2)
       expect(clients.first).to be_a(Client)
@@ -95,7 +97,7 @@ RSpec.describe Client do
 
     it 'returns empty array for empty json array' do
       clients = Client.from_json_array([])
-      
+
       expect(clients).to eq([])
     end
 
@@ -104,9 +106,9 @@ RSpec.describe Client do
         { 'id' => 1 },
         { 'id' => 2, 'full_name' => 'Test' }
       ]
-      
+
       clients = Client.from_json_array(json_array)
-      
+
       expect(clients.first.full_name).to eq('')
       expect(clients.first.email).to eq('')
       expect(clients.last.full_name).to eq('Test')
@@ -127,4 +129,4 @@ RSpec.describe Client do
       expect { Client.new(id: 1, email: nil) }.not_to raise_error
     end
   end
-end 
+end

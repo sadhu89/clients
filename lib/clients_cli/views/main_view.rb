@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# View class for displaying main menu and help information
 class MainView
   def self.show_welcome(file_path, client_count)
     <<~SCREEN
@@ -35,8 +38,6 @@ class MainView
     "👋 Returning to main menu\n"
   end
 
-  private
-
   def self.show_commands_help
     <<~SCREEN
       Commands:
@@ -47,4 +48,4 @@ class MainView
         • 'q' or 'quit' - Exit
     SCREEN
   end
-end 
+end

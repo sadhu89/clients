@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../../../lib/clients/models/client'
 require_relative '../../../../lib/clients/services/find_clients'
 
@@ -127,4 +129,4 @@ RSpec.describe FindClients do
       end
     end
   end
-end 
+end

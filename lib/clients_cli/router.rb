@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 require_relative '../clients/clients'
 
+# Router class for handling user input and directing to appropriate actions
 class Router
   class << self
     def handle_main_shell(input)
@@ -32,4 +35,4 @@ class Router
       end
     end
   end
-end 
+end

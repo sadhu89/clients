@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
+# View class for displaying search results
 class SearchResultsView
   def self.show_search_results(matching_clients, query)
     result = "🔍 Searching for: '#{query}'\n"
-    
+
     if matching_clients.empty?
       result += "❌ No clients found matching '#{query}'\n"
     else
@@ -19,7 +22,7 @@ class SearchResultsView
         SCREEN
       end
     end
-    
+
     result
   end
-end 
+end

@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# View class for displaying search mode interface
 class SearchModeView
   def self.show_search_mode_help
     <<~SCREEN
@@ -6,4 +9,4 @@ class SearchModeView
 
     SCREEN
   end
-end 
+end

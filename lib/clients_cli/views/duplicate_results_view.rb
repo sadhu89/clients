@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
+# View class for displaying duplicate client results
 class DuplicateResultsView
   def self.show_duplicate_results(duplicate_groups)
     result = "🔍 Searching for duplicate emails...\n"
-    
+
     if duplicate_groups.empty?
       result += "✅ No duplicate email addresses found\n"
     else
@@ -15,7 +18,7 @@ class DuplicateResultsView
         SCREEN
       end
     end
-    
+
     result
   end
-end 
+end

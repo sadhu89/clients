@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require 'dry-struct'
 require_relative 'types'
 
+# Client model representing a client with structured data
 class Client < Dry::Struct
   attribute :id, Types::Integer
-  attribute :full_name, Types::String.optional.default(''.freeze)
-  attribute :email, Types::String.optional.default(''.freeze)
+  attribute :full_name, Types::String.optional.default('')
+  attribute :email, Types::String.optional.default('')
 
   def self.from_hash(hash)
     new(
@@ -17,4 +20,4 @@ class Client < Dry::Struct
   def self.from_json_array(json_array)
     json_array.map { |hash| from_hash(hash) }
   end
-end 
+end

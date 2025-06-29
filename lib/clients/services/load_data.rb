@@ -1,15 +1,18 @@
+# frozen_string_literal: true
+
 require 'json'
 require_relative '../models/client'
 
 class ClientsSearchError < StandardError; end
 
+# Service class for loading client data from JSON files
 class LoadData
   def self.call(file_path)
     unless File.exist?(file_path)
       puts "Error: File not found at #{file_path}"
       raise ClientsSearchError, "File not found at #{file_path}"
     end
-    
+
     begin
       raw_clients = JSON.parse(File.read(file_path))
       Client.from_json_array(raw_clients)
@@ -21,4 +24,4 @@ class LoadData
       raise ClientsSearchError, "Invalid client data in file #{file_path}: #{e.message}"
     end
   end
-end 
+end
