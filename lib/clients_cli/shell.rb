@@ -1,9 +1,14 @@
 require_relative '../clients/services/find_clients'
-require_relative 'formatter'
+require_relative 'views/welcome_view'
+require_relative 'views/search_results_view'
+require_relative 'views/duplicate_results_view'
+require_relative 'views/search_mode_view'
+require_relative 'views/common_messages_view'
+require_relative 'search_mode_shell'
 
 class Shell
   def self.start(clients, file_path)
-    Formatter.show_welcome(file_path, clients.length)
+    WelcomeView.show_welcome(file_path, clients.length)
 
     loop do
       print "clients> "
@@ -12,47 +17,22 @@ class Shell
       
       case input.downcase
       when 'q', 'quit', 'exit'
-        Formatter.show_goodbye
+        CommonMessagesView.show_goodbye
         break
       when 'h', 'help'
-        Formatter.show_help(file_path, clients.length)
+        WelcomeView.show_help(file_path, clients.length)
       when 'c', 'clear'
-        Formatter.clear_screen
-        Formatter.show_welcome(file_path, clients.length)
+        CommonMessagesView.clear_screen
+        WelcomeView.show_welcome(file_path, clients.length)
       when 'd', 'duplicates'
         puts "🔍 Searching for duplicate emails..."
-        Formatter.show_duplicate_results(clients)
+        DuplicateResultsView.show_duplicate_results(clients)
       when 's', 'search'
-        search_mode(clients)
+        SearchModeShell.start(clients)
       when ''
         # Do nothing for empty input
       else
-        Formatter.show_unknown_command(input)
-      end
-      puts
-    end
-  end
-
-  private
-
-  def self.search_mode(clients)
-    Formatter.show_search_mode_help
-
-    loop do
-      print "search> "
-      query = STDIN.gets&.chomp&.strip
-      break if query.nil?
-      
-      case query.downcase
-      when '/q', '/quit'
-        Formatter.show_returning_to_menu
-        break
-      when ''
-        # Do nothing for empty input
-      else
-        puts "🔍 Searching for: '#{query}'"
-        matching_clients = FindClients.call(clients, query)
-        Formatter.show_search_results(matching_clients, query)
+        CommonMessagesView.show_unknown_command(input)
       end
       puts
     end

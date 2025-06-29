@@ -1,7 +1,6 @@
 require 'thor'
 require_relative 'loader'
 require_relative 'shell'
-require_relative 'formatter'
 require_relative '../clients/services/find_clients'
 
 class CLI < Thor
