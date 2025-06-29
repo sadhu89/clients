@@ -4,10 +4,7 @@ require_relative '../clients/models/client'
 class ClientsSearchError < StandardError; end
 
 class DataLoader
-  DEFAULT_FILE_PATH = File.join(File.dirname(__FILE__), '..', '..', 'data', 'clients.json')
-
-  def self.load_clients(file_path = nil)
-    file_path ||= DEFAULT_FILE_PATH
+  def self.load_clients(file_path)
     
     unless File.exist?(file_path)
       puts "Error: File not found at #{file_path}"

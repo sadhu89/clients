@@ -1,8 +1,8 @@
-require_relative '../../clients/services/find_duplicate_clients'
+require_relative '../clients'
 
 class DuplicateResultsView
-  def self.show_duplicate_results(clients)
-    duplicate_groups = FindDuplicateClients.call(clients)
+  def self.show_duplicate_results(file_path)
+    duplicate_groups = Clients.find_duplicates(file_path)
     
     if duplicate_groups.empty?
       puts "✅ No duplicate email addresses found"

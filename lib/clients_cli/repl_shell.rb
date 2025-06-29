@@ -1,4 +1,4 @@
-require_relative '../clients/services/find_clients'
+require_relative 'clients'
 require_relative 'views/welcome_view'
 require_relative 'views/search_results_view'
 require_relative 'views/duplicate_results_view'
@@ -6,9 +6,10 @@ require_relative 'views/search_mode_view'
 require_relative 'views/common_messages_view'
 require_relative 'search_mode_shell'
 
-class Shell
-  def self.start(clients, file_path)
-    WelcomeView.show_welcome(file_path, clients.length)
+class ReplShell
+  def self.start(file_path)
+    clients = Clients.load_clients(file_path)
+    WelcomeView.show_welcome(file_path, Clients.count(clients))
 
     loop do
       print "clients> "
@@ -20,15 +21,15 @@ class Shell
         CommonMessagesView.show_goodbye
         break
       when 'h', 'help'
-        WelcomeView.show_help(file_path, clients.length)
+        WelcomeView.show_help(file_path, Clients.count(clients))
       when 'c', 'clear'
         CommonMessagesView.clear_screen
-        WelcomeView.show_welcome(file_path, clients.length)
+        WelcomeView.show_welcome(file_path, Clients.count(clients))
       when 'd', 'duplicates'
         puts "🔍 Searching for duplicate emails..."
-        DuplicateResultsView.show_duplicate_results(clients)
+        DuplicateResultsView.show_duplicate_results(file_path)
       when 's', 'search'
-        SearchModeShell.start(clients)
+        SearchModeShell.start(file_path)
       when ''
         # Do nothing for empty input
       else
