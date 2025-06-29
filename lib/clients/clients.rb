@@ -20,6 +20,7 @@ class Clients
   end
 
   def self.all(file_path)
-    @all ||= LoadData.call(file_path)
+    @cache ||= {}
+    @cache[file_path] ||= LoadData.call(file_path)
   end
 end

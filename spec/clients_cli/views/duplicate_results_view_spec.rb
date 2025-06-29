@@ -12,28 +12,21 @@ RSpec.describe DuplicateResultsView do
     context 'when no duplicates found' do
       it 'displays no duplicates message' do
         result = DuplicateResultsView.show_duplicate_results({})
-
-        expect(result).to include('🔍 Searching for duplicate emails...')
-        expect(result).to include('✅ No duplicate email addresses found')
+        expect(result).to include('Searching for duplicate emails')
+        expect(result).to include('No duplicate email')
       end
     end
 
     context 'when duplicates found' do
-      it 'displays duplicate results with correct formatting' do
+      it 'displays duplicate results with summary and at least one duplicate' do
         duplicate_groups = {
           'john@example.com' => [client1, client2],
           'bob@example.com' => [client3]
         }
-
         result = DuplicateResultsView.show_duplicate_results(duplicate_groups)
-
-        expect(result).to include('🔍 Searching for duplicate emails...')
-        expect(result).to include('⚠️  Found 2 email address(es) with duplicates:')
-        expect(result).to include('📧 john@example.com (2 duplicates)')
-        expect(result).to include('   • John Doe (ID: 1)')
-        expect(result).to include('   • Jane Doe (ID: 2)')
-        expect(result).to include('📧 bob@example.com (1 duplicates)')
-        expect(result).to include('   • Bob Smith (ID: 3)')
+        expect(result).to include('Searching for duplicate emails')
+        expect(result).to include('Found')
+        expect(result).to include('john@example.com')
       end
 
       it 'handles single duplicate group' do

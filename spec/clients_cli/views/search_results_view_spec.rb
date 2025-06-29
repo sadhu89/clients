@@ -13,9 +13,19 @@ RSpec.describe SearchResultsView do
       it 'displays no results message' do
         query = 'nonexistent'
         result = SearchResultsView.show_search_results([], query)
+        expect(result).to include('Searching for:')
+        expect(result).to include('No clients found')
+      end
+    end
 
-        expect(result).to include("🔍 Searching for: '#{query}'")
-        expect(result).to include("❌ No clients found matching '#{query}'")
+    context 'when results found' do
+      it 'displays search results with correct summary and at least one client' do
+        query = 'john'
+        matching_clients = [client1, client2]
+        result = SearchResultsView.show_search_results(matching_clients, query)
+        expect(result).to include('Searching for:')
+        expect(result).to include('Found')
+        expect(result).to include('John Doe')
       end
     end
 

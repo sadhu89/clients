@@ -12,7 +12,7 @@ require_relative 'router'
 class InteractiveShell
   extend Dry::Monads[:result, :do]
 
-  def self.start(file_path)
+  def self.run(file_path)
     clients = yield Clients.all(file_path)
     puts MainView.show_welcome(file_path, clients.length)
     run_main_loop(file_path, clients)
@@ -83,4 +83,6 @@ class InteractiveShell
       puts
     end
   end
+
+  private_class_method :run_main_loop, :handle_main_action, :clear_screen, :start_search_mode, :run_search_loop
 end

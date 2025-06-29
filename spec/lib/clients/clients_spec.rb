@@ -15,7 +15,7 @@ RSpec.describe Clients do
 
   before do
     # Clear the cached clients
-    Clients.instance_variable_set(:@clients_cache, nil)
+    Clients.instance_variable_set(:@cache, nil)
   end
 
   describe '.all' do
@@ -41,7 +41,7 @@ RSpec.describe Clients do
     end
 
     it 'propagates failures from LoadData' do
-      error = ClientsSearchError.new('File not found')
+      error = StandardError.new('File not found')
       allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Failure(error))
 
       result = Clients.all(test_file_path)
@@ -64,7 +64,7 @@ RSpec.describe Clients do
     end
 
     it 'propagates failures from LoadData' do
-      error = ClientsSearchError.new('File not found')
+      error = StandardError.new('File not found')
       allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Failure(error))
 
       result = Clients.search(test_file_path, 'john')
@@ -88,7 +88,7 @@ RSpec.describe Clients do
     end
 
     it 'propagates failures from LoadData' do
-      error = ClientsSearchError.new('File not found')
+      error = StandardError.new('File not found')
       allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Failure(error))
 
       result = Clients.find_duplicates(test_file_path)
