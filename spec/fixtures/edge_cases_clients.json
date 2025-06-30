@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "full_name": "John Doe",
+    "email": "john.doe@gmail.com"
+  },
+  {
+    "id": 2,
+    "full_name": null,
+    "email": "no.name@example.com"
+  },
+  {
+    "id": 3,
+    "full_name": "",
+    "email": "empty.name@example.com"
+  },
+  {
+    "id": 4,
+    "full_name": "   John   ",
+    "email": "spaced.john@example.com"
+  }
+] 
