@@ -15,86 +15,134 @@ RSpec.describe Clients do
 
   before do
     # Clear the cached clients
-    Clients.instance_variable_set(:@cache, nil)
+    described_class.instance_variable_set(:@cache, nil)
   end
 
   describe '.all' do
-    it 'loads clients from the specified file path' do
+    before do
       allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Success(sample_clients))
+    end
 
-      result = Clients.all(test_file_path)
-
+    it 'returns success' do
+      result = described_class.all(test_file_path)
       expect(result).to be_success
+    end
+
+    it 'returns correct value' do
+      result = described_class.all(test_file_path)
       expect(result.value!).to eq(sample_clients)
     end
 
     it 'caches the loaded clients' do
-      allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Success(sample_clients))
-
-      # First call should load data
-      Clients.all(test_file_path)
-
-      # Second call should use cached data
-      Clients.all(test_file_path)
-
+      described_class.all(test_file_path)
+      described_class.all(test_file_path)
       expect(LoadData).to have_received(:call).with(test_file_path).once
     end
 
-    it 'propagates failures from LoadData' do
-      error = StandardError.new('File not found')
-      allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Failure(error))
+    context 'when LoadData fails' do
+      let(:error) { StandardError.new('File not found') }
 
-      result = Clients.all(test_file_path)
+      before do
+        allow(LoadData).to receive(:call)
+          .with(test_file_path)
+          .and_return(Dry::Monads::Failure(error))
+      end
 
-      expect(result).to be_failure
-      expect(result.failure).to eq(error)
+      it 'returns failure' do
+        fail_result = described_class.all(test_file_path)
+        expect(fail_result).to be_failure
+      end
+
+      it 'returns correct error' do
+        fail_result = described_class.all(test_file_path)
+        expect(fail_result.failure).to eq(error)
+      end
     end
   end
 
   describe '.search' do
-    it 'searches for clients matching the query' do
+    before do
       allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Success(sample_clients))
       allow(FindClients).to receive(:call).with(sample_clients, 'john').and_return([sample_clients.first])
+    end
 
-      result = Clients.search(test_file_path, 'john')
-
+    it 'returns success' do
+      result = described_class.search(test_file_path, 'john')
       expect(result).to be_success
+    end
+
+    it 'returns correct value' do
+      result = described_class.search(test_file_path, 'john')
       expect(result.value!).to eq([sample_clients.first])
+    end
+
+    it 'calls FindClients with correct args' do
+      described_class.search(test_file_path, 'john')
       expect(FindClients).to have_received(:call).with(sample_clients, 'john')
     end
 
-    it 'propagates failures from LoadData' do
-      error = StandardError.new('File not found')
-      allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Failure(error))
+    context 'when LoadData fails' do
+      let(:error) { StandardError.new('File not found') }
 
-      result = Clients.search(test_file_path, 'john')
+      before do
+        allow(LoadData).to receive(:call)
+          .with(test_file_path)
+          .and_return(Dry::Monads::Failure(error))
+      end
 
-      expect(result).to be_failure
-      expect(result.failure).to eq(error)
+      it 'returns failure' do
+        fail_result = described_class.search(test_file_path, 'john')
+        expect(fail_result).to be_failure
+      end
+
+      it 'returns correct error' do
+        fail_result = described_class.search(test_file_path, 'john')
+        expect(fail_result.failure).to eq(error)
+      end
     end
   end
 
   describe '.find_duplicates' do
-    it 'finds duplicate clients' do
+    before do
       allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Success(sample_clients))
-      duplicate_groups = { 'john@example.com' => [sample_clients.first] }
-      allow(FindDuplicateClients).to receive(:call).with(sample_clients).and_return(duplicate_groups)
+      allow(FindDuplicateClients).to receive(:call)
+        .with(sample_clients)
+        .and_return({ 'john@example.com' => [sample_clients.first] })
+    end
 
-      result = Clients.find_duplicates(test_file_path)
-
+    it 'returns success' do
+      result = described_class.find_duplicates(test_file_path)
       expect(result).to be_success
-      expect(result.value!).to eq(duplicate_groups)
+    end
+
+    it 'returns correct value' do
+      result = described_class.find_duplicates(test_file_path)
+      expect(result.value!).to eq({ 'john@example.com' => [sample_clients.first] })
+    end
+
+    it 'calls FindDuplicateClients with correct args' do
+      described_class.find_duplicates(test_file_path)
       expect(FindDuplicateClients).to have_received(:call).with(sample_clients)
     end
 
-    it 'propagates failures from LoadData' do
-      error = StandardError.new('File not found')
-      allow(LoadData).to receive(:call).with(test_file_path).and_return(Dry::Monads::Failure(error))
+    context 'when LoadData fails' do
+      let(:error) { StandardError.new('File not found') }
 
-      result = Clients.find_duplicates(test_file_path)
+      before do
+        allow(LoadData).to receive(:call)
+          .with(test_file_path)
+          .and_return(Dry::Monads::Failure(error))
+      end
 
-      expect(result).to be_failure
-      expect(result.failure).to eq(error)
+      it 'returns failure' do
+        fail_result = described_class.find_duplicates(test_file_path)
+        expect(fail_result).to be_failure
+      end
+
+      it 'returns correct error' do
+        fail_result = described_class.find_duplicates(test_file_path)
+        expect(fail_result.failure).to eq(error)
+      end
     end
   end
 end

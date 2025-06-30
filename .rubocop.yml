@@ -48,3 +48,5 @@ Metrics/PerceivedComplexity:
 Lint/UselessAssignment:
   Exclude:
     - 'bin/clients' 
+
+plugins: rubocop-rspec

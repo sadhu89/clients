@@ -8,6 +8,7 @@ gem 'thor', '~> 1.2'
 
 group :development do
   gem 'rspec', '~> 3.12'
-  gem 'rubocop', '~> 1.50'
+  gem 'rubocop'
+  gem 'rubocop-rspec'
   gem 'simplecov', '~> 0.22', require: false
 end

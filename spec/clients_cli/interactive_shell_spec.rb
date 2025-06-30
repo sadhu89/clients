@@ -23,19 +23,37 @@ RSpec.describe InteractiveShell do
   end
 
   describe '.run' do
-    it 'starts the interactive shell successfully' do
-      expect(InteractiveShell).to receive(:run_main_loop).with(test_file_path, sample_clients)
-      expect(MainView).to receive(:show_welcome).with(test_file_path, 2)
+    it 'calls run_main_loop with correct parameters' do
+      allow(described_class).to receive(:run_main_loop).with(test_file_path, sample_clients)
+      allow(MainView).to receive(:show_welcome).with(test_file_path, 2)
 
-      InteractiveShell.run(test_file_path)
+      described_class.run(test_file_path)
+
+      expect(described_class).to have_received(:run_main_loop).with(test_file_path, sample_clients)
     end
 
-    it 'returns Failure when Clients.all fails' do
+    it 'calls show_welcome with correct parameters' do
+      allow(described_class).to receive(:run_main_loop).with(test_file_path, sample_clients)
+      allow(MainView).to receive(:show_welcome).with(test_file_path, 2)
+
+      described_class.run(test_file_path)
+
+      expect(MainView).to have_received(:show_welcome).with(test_file_path, 2)
+    end
+
+    it 'returns failure result when Clients.all fails' do
       error = StandardError.new('File not found')
       allow(Clients).to receive(:all).with(test_file_path).and_return(Dry::Monads::Failure(error))
 
-      result = InteractiveShell.run(test_file_path)
+      result = described_class.run(test_file_path)
       expect(result).to be_failure
+    end
+
+    it 'returns correct error when Clients.all fails' do
+      error = StandardError.new('File not found')
+      allow(Clients).to receive(:all).with(test_file_path).and_return(Dry::Monads::Failure(error))
+
+      result = described_class.run(test_file_path)
       expect(result.failure).to eq(error)
     end
   end

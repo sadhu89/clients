@@ -72,6 +72,9 @@ GEM
     rubocop-ast (1.45.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
+    rubocop-rspec (3.6.0)
+      lint_roller (~> 1.1)
+      rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
     simplecov (0.22.0)
       docile (~> 1.1)
@@ -92,7 +95,8 @@ DEPENDENCIES
   dry-monads (~> 1.6)
   dry-struct (~> 1.6)
   rspec (~> 3.12)
-  rubocop (~> 1.50)
+  rubocop
+  rubocop-rspec
   simplecov (~> 0.22)
   thor (~> 1.2)
 

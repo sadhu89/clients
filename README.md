@@ -1,13 +1,12 @@
 # Clients Search Ruby Application
 
-A Ruby console application for searching client information, built with modern Ruby practices including functional programming patterns, comprehensive testing, and clean architecture principles.
+A Ruby console application for searching client information, built with modern Ruby practices including functional programming patterns, comprehensive testing, and clean architecture principles. Coded with Cursor to sped up development.
 
 ## Features
 
 - **Interactive CLI**: Command-line interface with REPL for searching clients
 - **Client Search**: Search clients by name or email with fuzzy matching
 - **Duplicate Detection**: Find and display duplicate clients based on email addresses
-- **Error Handling**: Comprehensive error handling using dry-monads
 
 ## Prerequisites
 
@@ -96,13 +95,6 @@ The project maintains 100% test coverage across:
 
 Coverage reports are generated in the `coverage/` directory. Open `coverage/index.html` in your browser to view detailed coverage information.
 
-### Coverage Groups
-
-- **Models**: Client data models and type definitions
-- **Services**: Business logic for client operations
-- **CLI**: Command-line interface components
-- **Views**: User interface display components
-
 ## Code Quality
 
 The project uses RuboCop for code style enforcement
@@ -185,7 +177,6 @@ bundle exec rubocop lib/clients_cli/
 1. **Data Source**: Only supports JSON files as data source
 2. **Search Algorithm**: Uses simple string matching (no fuzzy search or advanced algorithms)
 3. **Data Size**: Performance not optimized for very large datasets (>10,000 records)
-4. **Concurrency**: Single-threaded application with no concurrent access support
 5. **Persistence**: No data modification capabilities (read-only operations)
 
 ### Technical Limitations
